@@ -18,7 +18,8 @@ async def calc(db, i, q, throttle=False):
         avg_price = sum(ins.values()) / len(ins)
         await upsert(db, 'HighScores', ['ins', 'price'], [item, avg_price], 'ins')
         if throttle:
-            await asyncio.sleep(random.random()/5*(i+1))
+            #await asyncio.sleep(random.random() / 5 * (i+1))
+            await asyncio.sleep(0.5 * (i+1))
         print('Calculated', i, avg_price, ins)
 
 
@@ -41,7 +42,7 @@ if __name__ == '__main__':
 
     for i in range(0, nr_ins):
         Q.append(SetQueue())
-        loop.create_task(calc(db, i, Q[i]))
+        loop.create_task(calc(db, i, Q[i], True))
 
     # Thread for stream
     th_stream = threading.Thread(target=stream_from_thread, args=(loop, INS_DICT, Q, False, ))

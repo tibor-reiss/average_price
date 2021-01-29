@@ -15,4 +15,4 @@ def stream_from_thread(loop, ins_dict, queues, throttle=False):
         loop.call_soon_threadsafe(queues[instrument - 1].put_nowait, ins_name)
         if throttle:
             print('Put', ins_name)
-            time.sleep(0.3)
+            time.sleep(0.01)
