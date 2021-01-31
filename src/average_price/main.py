@@ -32,14 +32,12 @@ if __name__ == '__main__':
     setup_instrument_dictionary(INS_DICT)
     nr_ins = len(INS_DICT)
     loop = asyncio.get_event_loop()
+    loop.set_debug(True)
 
     db = loop.run_until_complete(setup_database('sqlite:///example.db'))
     query = """CREATE TABLE HighScores (ins VARCHAR(10) PRIMARY KEY, price DOUBLE)"""
     loop.run_until_complete(create_table(db, query))
-    print(db)
-    for i in range(10):
-        loop.run_until_complete(upsert(db, 'HighScores', ['ins', 'price'], ['bla', 1.1], 'ins'))
-
+    
     for i in range(0, nr_ins):
         Q.append(SetQueue())
         loop.create_task(calc(db, i, Q[i], True))
