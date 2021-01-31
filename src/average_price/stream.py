@@ -1,11 +1,13 @@
 import random
+import threading
 import time
 
 
-def stream_from_thread(loop, ins_dict, queues, throttle=False):
+def stream_from_thread(stop_event, loop, ins_dict, queues, throttle=False):
     print('***Starting the thread for the continuous stream...')
     nr_ins = len(ins_dict)
-    while True:
+    t = threading.currentThread()
+    while not stop_event.is_set():
         instrument = random.randint(1, nr_ins)
         ins_name = 'ins' + str(instrument)
         nr_market = len(ins_dict[ins_name])

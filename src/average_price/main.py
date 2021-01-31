@@ -38,16 +38,21 @@ if __name__ == '__main__':
     query = """CREATE TABLE HighScores (ins VARCHAR(10) PRIMARY KEY, price DOUBLE)"""
     loop.run_until_complete(create_table(db, query))
     
+    tasks = []
     for i in range(0, nr_ins):
         Q.append(SetQueue())
-        loop.create_task(calc(db, i, Q[i], True))
+        task = loop.create_task(calc(db, i, Q[i], False))
+        tasks.append(task)
 
-    # Thread for stream
-    th_stream = threading.Thread(target=stream_from_thread, args=(loop, INS_DICT, Q, False, ))
+    # Thread for stream - need an event to stop the infinite loop
+    stop_event = threading.Event()
+    th_stream = threading.Thread(target=stream_from_thread, args=(stop_event, loop, INS_DICT, Q, False, ))
     th_stream.start()
     
     try:
-        loop.run_forever()
+        loop.run_until_complete(asyncio.gather(*tasks))
     except KeyboardInterrupt:
         print('INTERRUPTED')
+        stop_event.set()
         th_stream.join()
+        print('DONE')
